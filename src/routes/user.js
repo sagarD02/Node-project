@@ -4,7 +4,7 @@ const ConnectionRequest =  require("../models/connectionReqest")
 const userRouter = express.Router();
 const User = require("../models/user");
 
-const USER_SAFE_DATA="firstName lastName phtoUtl age gender about skills"
+const USER_SAFE_DATA="firstName lastName photoUrl age gender about skills"
 //get all pending request for logged in user
 userRouter.get("/user/requests/received", userAuth, async(req,res)=>{
     try {
@@ -35,7 +35,7 @@ userRouter.get("/user/connections", userAuth, async(req,res)=>{
             {toUserId: loggedInUser._id, status:"accepted"},
             {fromUserId: loggedInUser._id, status:"accepted"}
         ]
-    }).populate("fromUserId",USER_SAFE_DATA).populate("toUserId",["firstName","lastName","skills","age"])
+    }).populate("fromUserId",USER_SAFE_DATA).populate("toUserId",["firstName","lastName","skills","age","photoUrl"])
 
     const userData = connectionReqests.map(row=>{
         if(row.fromUserId._id.toString() === loggedInUser._id.toString()){

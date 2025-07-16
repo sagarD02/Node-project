@@ -6,11 +6,11 @@ const {userAuth} = require("../middlewares/auth");
 
 const authRouter = express.Router();
 
-authRouter.post("/signup", userAuth,async(req,res) => {
+authRouter.post("/signup",async(req,res) => {
     //Validation of data
   try {
    validateSignupData(req);
-   const {firstName,lastName,emailId,password,photoUrl,age,gender} = req.body;
+   const {firstName,lastName,emailId,password} = req.body;
    //Encrypt
    const passwordHash = await bcrypt.hash(password,10)
   
@@ -20,12 +20,15 @@ authRouter.post("/signup", userAuth,async(req,res) => {
        lastName,
        emailId, 
        password : passwordHash,
-       photoUrl,
-       age,
-       gender
    })
+
+   const saveUser = await user.save();
+   const token = await saveUser.getJWT();
+   res.cookie("token",token)
+   res.send(saveUser)
    await user.save();
    res.send("User added successfully")
+   res.json({message: "User Added Successfully", data : saveUser})
  } catch(err) {
    res.status(400).send("error while saving data" + err.message)
  }
@@ -43,7 +46,6 @@ authRouter.post("/login",async(req,res) => {
    const isPasswordValid = await user.validatePassword(password);
    
    if(isPasswordValid) {
-
     //create token
     const token = await user.getJWT();
     //add token to cookie & send response back to user
